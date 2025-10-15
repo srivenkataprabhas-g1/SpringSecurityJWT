@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'Maven-3.8.6'
-        JAVA_HOME = tool 'JDK-21'
+        MAVEN_HOME = tool 'Maven-3.9.11'
+        JAVA_HOME = tool 'JDK_21'
         PATH = "${MAVEN_HOME}/bin:${JAVA_HOME}/bin:${PATH}"
         APP_NAME = 'spring-security-jwt-demo'
         APP_VERSION = "${BUILD_NUMBER}"
