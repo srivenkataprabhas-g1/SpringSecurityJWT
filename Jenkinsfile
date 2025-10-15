@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        MAVEN_HOME = tool 'Maven-3.9.11'  // Name configured in Jenkins
-        JAVA_HOME = tool 'JDK_21'
+        MAVEN_HOME = tool 'Maven-3.9.11'  // ensure this matches Jenkins global config
+        JAVA_HOME = tool 'JDK_21'        // ensure this matches Jenkins global config
         PATH = "${MAVEN_HOME}\\bin;${JAVA_HOME}\\bin;${env.PATH}"
     }
 
@@ -13,15 +13,24 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build') {
+
+        stage('Compile') {
             steps {
-                echo 'Building Spring Boot application...'
+                echo 'Compiling source code...'
                 bat "\"${MAVEN_HOME}\\bin\\mvn.cmd\" clean compile -B"
             }
         }
-        stage('Unit Tests') {
+
+        stage('Build') {
             steps {
-                echo 'Running unit tests...'
+                echo 'Building the application...'
+                bat "\"${MAVEN_HOME}\\bin\\mvn.cmd\" package -DskipTests -B"
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
                 bat "\"${MAVEN_HOME}\\bin\\mvn.cmd\" test -B"
             }
             post {
@@ -31,7 +40,7 @@ pipeline {
             }
         }
     }
-    
+
     post {
         always {
             cleanWs()
