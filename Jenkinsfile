@@ -1,30 +1,28 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Cleanup') {
-            steps {
-                cleanWs()
-            }
-        }
+    environment {
+        MAVEN_HOME = tool 'Maven-3.9.11'  // Name configured in Jenkins
+        JAVA_HOME = tool 'JDK_21'
+        PATH = "${MAVEN_HOME}\\bin;${JAVA_HOME}\\bin;${env.PATH}"
+    }
 
+    stages {
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
         stage('Build') {
             steps {
                 echo 'Building Spring Boot application...'
-                bat '"%MAVEN_HOME%\\bin\\mvn.cmd" clean compile -B'
+                bat "\"${MAVEN_HOME}\\bin\\mvn.cmd\" clean compile -B"
             }
         }
-
         stage('Unit Tests') {
             steps {
                 echo 'Running unit tests...'
-                bat '"%MAVEN_HOME%\\bin\\mvn.cmd" test -B'
+                bat "\"${MAVEN_HOME}\\bin\\mvn.cmd\" test -B"
             }
             post {
                 always {
@@ -33,7 +31,7 @@ pipeline {
             }
         }
     }
-
+    
     post {
         always {
             cleanWs()
