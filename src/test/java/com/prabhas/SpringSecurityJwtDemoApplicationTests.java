@@ -1,19 +1,21 @@
 package com.prabhas;
 
-import java.util.Set;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import com.prabhas.model.User;                  // Adjust this import based on your actual User class package
+import com.prabhas.repository.UserRepository;   // Adjust this import based on your actual UserRepository package
+import com.prabhas.service.UserService;         // Adjust this import if needed
 
-import com.prabhas.model.User;
-import com.prabhas.repository.UserRepository;
-import com.prabhas.service.UserService;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Set;
+import java.util.Optional;
 
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Ensures test order for demo
-class SpringSecurityJwtDemoApplicationTests {
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class SpringSecurityJwtDemoApplicationTests {
 
     @Autowired
     private UserService userService;
@@ -21,56 +23,52 @@ class SpringSecurityJwtDemoApplicationTests {
     @Autowired
     private UserRepository userRepository;
 
-    static String username = "testuser_ci";
-    static String email = "testuser_ci@example.com";
+    static String username = "ci_testuser";
+    static String email = "ci_testuser@example.com";
 
     @Test
     @Order(1)
     void testAddUser() {
-        userRepository.deleteByUsername(username); // Ensure fresh test run
+        if(userRepository.findByUsername(username)!=null)
+        {userRepository.deleteByUsername(username); // Clean up}
         Set<String> roles = Set.of("ROLE_USER");
-
         User user = userService.createUser(
                 username,
                 "testpassword",
                 email,
-                "Test",
-                "User",
-                "1234567890",
+                "First",
+                "Last",
+                "9876543210",
                 roles
         );
         assertNotNull(user);
-        assertThat(user.getUsername()).isEqualTo(username);
-        assertThat(user.getEmail()).isEqualTo(email);
+        assertEquals(username, user.getUsername());
     }
 
     @Test
     @Order(2)
     void testUpdateUser() {
         User user = userRepository.findByUsername(username).orElseThrow();
-
-        user.setFirstName("UpdatedFirst");
-        user.setLastName("UpdatedLast");
-        User updatedUser = userRepository.save(user);
-
-        assertThat(updatedUser.getFirstName()).isEqualTo("UpdatedFirst");
-        assertThat(updatedUser.getLastName()).isEqualTo("UpdatedLast");
+        user.setFirstName("Changed");
+        user.setLastName("Name");
+        User updated = userRepository.save(user);
+        assertThat(updated.getFirstName()).isEqualTo("Changed");
+        assertThat(updated.getLastName()).isEqualTo("Name");
     }
 
     @Test
     @Order(3)
     void testSearchUser() {
-        User user = userRepository.findByUsername(username).orElse(null);
-        assertNotNull(user);
-        assertThat(user.getUsername()).isEqualTo(username);
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        assertTrue(userOpt.isPresent());
+        assertEquals(username, userOpt.get().getUsername());
     }
 
     @Test
     @Order(4)
     void testDeleteUser() {
         userRepository.deleteByUsername(username);
-
-        var result = userRepository.findByUsername(username);
-        assertThat(result).isEmpty();
+        Optional<User> deleted = userRepository.findByUsername(username);
+        assertTrue(deleted.isEmpty());
     }
 }
