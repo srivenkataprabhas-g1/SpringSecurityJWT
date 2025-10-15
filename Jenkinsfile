@@ -1,14 +1,13 @@
 pipeline {
     agent any
+
     stages {
         stage('Cleanup') {
             steps {
-                node {
-                    cleanWs()
-                }
+                cleanWs()
             }
         }
-    stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
