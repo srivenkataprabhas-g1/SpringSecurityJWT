@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk17'         // Replace with your actual JDK name in Jenkins tool config
+        jdk 'jdk21'         // Replace with your actual JDK name in Jenkins tool config
         gradle 'gradle7'    // Replace with your actual Gradle tool name
     }
 
