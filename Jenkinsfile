@@ -20,7 +20,7 @@ pipeline {
     // Build triggers
     triggers {
         // Poll SCM every 2 minutes for changes
-        pollSCM('H/2 * * * *')
+        pollSCM('H/3 * * * *')
         
         // Build daily at 2 AM
         cron('0 2 * * *')
@@ -108,20 +108,15 @@ pipeline {
         }
         
         stage('🧪 Run Unit Tests') {
-            when {
-                not { params.SKIP_TESTS }
-            }
-            steps {
-                echo '🧪 Running unit tests...'
-                
-                sh '''
-                    mvn test -B \
-                        -Dspring.profiles.active=test \
-                        -Dmaven.test.failure.ignore=false
-                '''
-                
-                echo '✅ Unit tests completed!'
-            }
+           stage('🧪 Run Unit Tests') {
+    when {
+        expression { !params.SKIP_TESTS }
+    }
+    steps {
+        echo 'Running unit tests...'
+        sh 'mvn test'
+    }
+}
             post {
                 always {
                     // Publish test results
