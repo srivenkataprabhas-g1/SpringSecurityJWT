@@ -4,6 +4,7 @@ import com.prabhas.service.RoleService;
 import com.prabhas.service.UserService;
 import com.prabhas.models.entity.Role;
 import com.prabhas.models.entity.User;
+import com.prabhas.controller.RoleController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -164,4 +165,5 @@ class RoleControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("testuser"));
     }
+
 }
