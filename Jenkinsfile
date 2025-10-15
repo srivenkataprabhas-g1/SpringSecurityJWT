@@ -2,38 +2,40 @@ pipeline {
     agent any
 
     tools {
-        jdk 'jdk21'
-        maven 'maven3'
+        jdk 'JDK _21'       // Match the name exactly as you have it
+        maven 'Maven'       // Matches your configured Maven
+    }
+
+    environment {
+        MAVEN_OPTS = "-Dmaven.test.failure.ignore=false"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/srivenkataprabhas-g1/SpringSecurityJWT.git'
+                git credentialsId: 'c483ec91-2f63-4c94-908a-bd485275d21b', url: 'https://github.com/srivenkataprabhas-g1/SpringSecurityJWT.git'
             }
         }
 
-        stage('Build') {
+        stage('Build with Maven') {
             steps {
-                dir('SpringSecurityJWTDemo-main') { // Use only if project is in subfolder
-                    sh 'mvn clean package'
-                }
+                bat 'mvn clean package'
             }
         }
 
-        stage('Test') {
+        stage('Archive JAR') {
             steps {
-                dir('SpringSecurityJWTDemo-main') {
-                    sh 'mvn test'
-                }
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
             }
         }
+    }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deploying to test environment...'
-                // You can add a simple script to run the JAR, or copy files, etc.
-            }
+    post {
+        success {
+            echo '✅ Build completed successfully.'
+        }
+        failure {
+            echo '❌ Build failed. Check logs for more details.'
         }
     }
 }
