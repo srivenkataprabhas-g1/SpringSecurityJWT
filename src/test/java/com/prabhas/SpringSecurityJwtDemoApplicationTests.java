@@ -1,42 +1,76 @@
 package com.prabhas;
 
 import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
+import com.prabhas.model.User;
+import com.prabhas.repository.UserRepository;
 import com.prabhas.service.UserService;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Ensures test order for demo
 class SpringSecurityJwtDemoApplicationTests {
 
     @Autowired
     private UserService userService;
 
-    @Test
-    void contextLoads() {
-        // Basic test to load Spring context
-        assertThat(userService).isNotNull();
-    }
+    @Autowired
+    private UserRepository userRepository;
+
+    static String username = "testuser_ci";
+    static String email = "testuser_ci@example.com";
 
     @Test
-    void testCreateUser() {
-        var roles = Set.of("ROLE_USER");
-        var user = userService.createUser(
-                "testuser",
+    @Order(1)
+    void testAddUser() {
+        userRepository.deleteByUsername(username); // Ensure fresh test run
+        Set<String> roles = Set.of("ROLE_USER");
+
+        User user = userService.createUser(
+                username,
                 "testpassword",
-                "testuser@example.com",
+                email,
                 "Test",
                 "User",
                 "1234567890",
                 roles
         );
-        assertThat(user).isNotNull();
-        assertThat(user.getUsername()).isEqualTo("testuser");
-        assertThat(user.getRoles()).hasSize(1);
-        assertThat(user.getEmail()).isEqualTo("testuser@example.com");
+        assertNotNull(user);
+        assertThat(user.getUsername()).isEqualTo(username);
+        assertThat(user.getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    @Order(2)
+    void testUpdateUser() {
+        User user = userRepository.findByUsername(username).orElseThrow();
+
+        user.setFirstName("UpdatedFirst");
+        user.setLastName("UpdatedLast");
+        User updatedUser = userRepository.save(user);
+
+        assertThat(updatedUser.getFirstName()).isEqualTo("UpdatedFirst");
+        assertThat(updatedUser.getLastName()).isEqualTo("UpdatedLast");
+    }
+
+    @Test
+    @Order(3)
+    void testSearchUser() {
+        User user = userRepository.findByUsername(username).orElse(null);
+        assertNotNull(user);
+        assertThat(user.getUsername()).isEqualTo(username);
+    }
+
+    @Test
+    @Order(4)
+    void testDeleteUser() {
+        userRepository.deleteByUsername(username);
+
+        var result = userRepository.findByUsername(username);
+        assertThat(result).isEmpty();
     }
 }
