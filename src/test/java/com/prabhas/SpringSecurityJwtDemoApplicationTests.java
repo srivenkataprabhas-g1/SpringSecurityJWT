@@ -1,8 +1,8 @@
 package com.prabhas;
 
-import com.prabhas.model.User;                  // Adjust this import based on your actual User class package
-import com.prabhas.repository.UserRepository;   // Adjust this import based on your actual UserRepository package
-import com.prabhas.service.UserService;         // Adjust this import if needed
+import com.prabhas.model.User;                  
+import com.prabhas.repository.UserRepository;   
+import com.prabhas.service.UserService;         
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class SpringSecurityJwtDemoApplicationTests {
     @Order(1)
     void testAddUser() {
         if(userRepository.findByUsername(username)!=null)
-        {userRepository.deleteByUsername(username); // Clean up}
+        {userRepository.deleteByUsername(username);}
         Set<String> roles = Set.of("ROLE_USER");
         User user = userService.createUser(
                 username,
