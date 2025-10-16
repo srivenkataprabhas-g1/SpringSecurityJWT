@@ -1,7 +1,7 @@
 package com.prabhas;
 
-import com.prabhas.model.User;
-import com.prabhas.repository.UserRepository;
+import com.prabhas.models.entity.User;
+import com.prabhas.repositories.UserRepository;
 import com.prabhas.service.UserService;
 
 import org.junit.jupiter.api.*;
