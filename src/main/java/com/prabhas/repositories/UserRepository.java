@@ -2,9 +2,11 @@ package com.prabhas.repositories;
 
 import com.prabhas.models.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Repository
@@ -21,8 +23,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     boolean existsByEmail(String email);
 
-    void deleteByUsername(String username);
-    
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM User u WHERE u.username = :username")
+    void deleteByUsername(@Param("username") String username);
+
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
     java.util.List<User> findUsersByRoleName(@Param("roleName") String roleName);
 }
