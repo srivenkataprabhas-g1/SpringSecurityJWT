@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     
     boolean existsByEmail(String email);
 
-    boolean deleteByUsername(String username);
+    void deleteByUsername(String username);
     
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.roleName = :roleName")
     java.util.List<User> findUsersByRoleName(@Param("roleName") String roleName);
