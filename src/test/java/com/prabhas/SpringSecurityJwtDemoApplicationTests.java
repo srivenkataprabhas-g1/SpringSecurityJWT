@@ -1,8 +1,8 @@
 package com.prabhas;
 
-import com.prabhas.model.User;                  
-import com.prabhas.repository.UserRepository;   
-import com.prabhas.service.UserService;         
+import com.prabhas.model.User;
+import com.prabhas.repository.UserRepository;
+import com.prabhas.service.UserService;
 
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +29,11 @@ public class SpringSecurityJwtDemoApplicationTests {
     @Test
     @Order(1)
     void testAddUser() {
-        if(userRepository.findByUsername(username)!=null)
-        {userRepository.deleteByUsername(username);}
+        // Ensure no duplicate user exists from previous test runs
+        userRepository.findByUsername(username).ifPresent(userRepository::delete);
+
         Set<String> roles = Set.of("ROLE_USER");
+
         User user = userService.createUser(
                 username,
                 "testpassword",
@@ -41,17 +43,21 @@ public class SpringSecurityJwtDemoApplicationTests {
                 "9876543210",
                 roles
         );
-        assertNotNull(user);
-        assertEquals(username, user.getUsername());
+
+        assertNotNull(user, "User should not be null after creation");
+        assertEquals(username, user.getUsername(), "Username should match");
     }
 
     @Test
     @Order(2)
     void testUpdateUser() {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AssertionError("User not found for update"));
+
         user.setFirstName("Changed");
         user.setLastName("Name");
         User updated = userRepository.save(user);
+
         assertThat(updated.getFirstName()).isEqualTo("Changed");
         assertThat(updated.getLastName()).isEqualTo("Name");
     }
@@ -60,8 +66,8 @@ public class SpringSecurityJwtDemoApplicationTests {
     @Order(3)
     void testSearchUser() {
         Optional<User> userOpt = userRepository.findByUsername(username);
-        assertTrue(userOpt.isPresent());
-        assertEquals(username, userOpt.get().getUsername());
+        assertTrue(userOpt.isPresent(), "User should exist in the database");
+        assertEquals(username, userOpt.get().getUsername(), "Searched user should match username");
     }
 
     @Test
@@ -69,6 +75,6 @@ public class SpringSecurityJwtDemoApplicationTests {
     void testDeleteUser() {
         userRepository.deleteByUsername(username);
         Optional<User> deleted = userRepository.findByUsername(username);
-        assertTrue(deleted.isEmpty());
+        assertTrue(deleted.isEmpty(), "User should be deleted from the database");
     }
 }
